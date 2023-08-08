@@ -1,6 +1,0 @@
-Back-ground colour:
-background-color: rgb(5, 140, 220);
-
-font-size:15pt; color:rgb(225,225,225) #font size and colour of all labels
-font-size:14pt;color:rgb(225,225,225)  #font size and colour of textboxes
-
