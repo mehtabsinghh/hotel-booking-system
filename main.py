@@ -404,7 +404,7 @@ class MainWindow(QtWidgets.QMainWindow, window3):
     def weatherFetcher(self):
         '''Retreieves weathers from internet for london
            return -> void'''
-        apiKey = "1ca2715f80992ab1a3d99374528c2387" # API key to access API
+        apiKey = "[Enter API KEY HERE]" # API key to access API
         baseUrl = "https://api.openweathermap.org/data/2.5/weather" # URL
         requestsUrl = f"{baseUrl}?appid={apiKey}&q=london" # Passing in parameters to the URL
         response = requests.get(requestsUrl)
