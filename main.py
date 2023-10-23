@@ -98,9 +98,7 @@ class CreateDatabase():
 db = CreateDatabase(None) # Creates the object for the class
 db.main()                 # Runs the main() function from the class which creates the database
 
-
 # WINDOWS
-
 window1 = uic.loadUiType("login_window.ui")[0]
 window2 = uic.loadUiType("signup_window.ui")[0]
 window3 = uic.loadUiType("main_window.ui")[0]
@@ -111,133 +109,154 @@ window7 = uic.loadUiType("travelodge_gui.ui")[0]
 window8 = uic.loadUiType("parkgrand_gui.ui")[0]
 window9 = uic.loadUiType("canopy_gui.ui")[0]
 window10 = uic.loadUiType("residentcovent_gui.ui")[0]
+
 #GLOBAL VARIABLES
 email = ""
 
 
 
 #CLASSES FOR THE WINDOWS
-
 class Login(QtWidgets.QMainWindow, window1):
-    def __init__(self,email, parent=None):
+    def __init__(self, email, parent=None):
+        # Initialize the Login window
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         
-        # Set title 
+        # Set the title and fixed window size
         self.setWindowTitle('Login Window')
-        
-        # Sets fixed window size
         self.setFixedWidth(480)
         self.setFixedHeight(620)
         
-        # Connects button to its function
-        self.loginButton.clicked.connect(self.loginfunction)
-        self.signupHereButton.clicked.connect(self.gotocreate)
+        # Connect buttons to their respective functions
+        self.loginButton.clicked.connect(self.login_function)
+        self.signupHereButton.clicked connect(self.goto_create)
         
-        # Makes the password hidden
+        # Make the password field display dots for security
         self.password_field.setEchoMode(QtWidgets.QLineEdit.Password)
         
-        
-    def loginfunction(self):
-        '''Validates whether the email and password inputted match and are correct
-           return -> void '''
+    def login_function(self):
+        # Function to validate user input and login
         global email
-        email = self.email_field.text() # Creates variable for email inputted in textbox to be fetched and operated on - aouldcott0@telegraph.co.uk 
-        password = self.password_field.text() # Creates variable for password inputted in textbox to be fetched and operated on - XO3KbG9
-        if len(email) == 0 or len(password) == 0: # Checks if usernames or password is left blank
-            self.login_text.setText("Please input all fields") # Outputs a message into GUI notifying the user of the error    
-        else: # Runs the else condition which is if the text boxes are not empty
-            if any(char in "\"'`;&<>”‘’" for char in email) or any(char in "\"'`;&<>”‘’" for char in password): # Checking for special characters in email and password
-                self.login_text.setText("Invalid characters used in email or password") # Outputs a message notifying user has used invalid characters
-                return # Exiting the function early if invalid characters are used
-            conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-            cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-            query = 'SELECT password FROM USERS WHERE email = \''+email+"\'" # SQL statement to be executed when finding password for matching email                                                                       
-            cur.execute(query) # Executes the query
-            result_pass = cur.fetchone() # Retrieves the first row of the query result and assigns the first column (password) to result_pass 
-            if result_pass is None: # Checks if the email does not exist
-                self.login_text.setText("Email has not been registered") # Outputs a message that the email not found in the database
-            elif result_pass[0] == password: # Checks if the password of the email is the same as the password inputted
-                self.login_text.setText("Successfully logged in") # Outputs a message saying user is logged in
-                w1.hide(), w3.show() # Hides the login window and displays the main window
-                self.email_field.setText("") # Clears the email field
-                self.password_field.setText("") # Clears the password field
+        email = self.email_field.text()
+        password = self.password_field.text()
+        
+        if len(email) == 0 or len(password) == 0:
+            # Check if either the email or password is empty
+            self.login_text.setText("Please input all fields")
+        else:
+            # Check for invalid characters in email and password
+            invalid_chars = "\"'`;&<>”‘’"
+            if any(char in invalid_chars for char in email) or any(char in invalid_chars for char in password):
+                self.login_text.setText("Invalid characters used in email or password")
+                return
+            
+            # Establish a connection to the SQL database
+            conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+            cur = conn.cursor()
+            
+            # Retrieve the password associated with the provided email
+            query = 'SELECT password FROM USERS WHERE email = \'' + email + "\'"
+            cur.execute(query)
+            result_pass = cur.fetchone()
+            
+            if result_pass is None:
+                # Check if the email doesn't exist
+                self.login_text.setText("Email has not been registered")
+            elif result_pass[0] == password:
+                # Check if the password matches
+                self.login_text.setText("Successfully logged in")
+                w1.hide()
+                w3.show()
+                self.email_field.setText("")
+                self.password_field.setText("")
                 self.login_text.setText("")
-            else: # Runs the else condition which is if the password doesn't match
-                self.login_text.setText("Incorrect username or password") # Outputs that the user has entered the incorrect password
+            else:
+                self.login_text.setText("Incorrect username or password")
                 
-    def gotocreate(self):
-        '''Opens the create account window'''
-        w1.hide(), w2.show() # Shows Signup window and hides login window
-             
+    def goto_create(self):
+        # Function to open the create account window
+        w1.hide()
+        w2.show()
                 
 class SignUp(QtWidgets.QMainWindow, window2):
     def __init__(self, parent=None):
+        # Initialize the SignUp window
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         
-        # Set title 
+        # Set the title and fixed window size
         self.setWindowTitle('Signup Window')
-        
-        # Connects button to its function
-        self.signupButton.clicked.connect(self.signupfunction)
-        self.backButton.clicked.connect(self.backtologin)
-        
-        # Sets fixed window size
         self.setFixedWidth(480)
         self.setFixedHeight(620)
         
-        # Makes the password hidden
+        # Connect buttons to their respective functions
+        self.signupButton.clicked.connect(self.signup_function)
+        self.backButton.clicked.connect(self.back_to_login)
+        
+        # Make the password fields display dots for security
         self.passwordSignup_field.setEchoMode(QtWidgets.QLineEdit.Password)
         self.confirmPass_field.setEchoMode(QtWidgets.QLineEdit.Password)
         
-    def signupfunction(self):
-        '''Creates an account for the user and inserts it into the database
-           return -> void'''
-        email = self.usernameSignUp_field.text() # Creates variable for email inputted in textbox to be fetched and operated on
-        password = self.passwordSignup_field.text() # Creates variable for password inputted in textbox to be fetched and operated on
-        confirmPassword = self.confirmPass_field.text() # Creates variable for password inputted in textbox to be fetched and operated on
-        if len(email) == 0 or len(password) == 0 or len(confirmPassword) == 0:
-            self.signup_text.setText("Please input all fields") # Outputs a message into GUI to notify user to input all fields
-        else: # Runs the code if all text fields are inputted
-            if any(char in "\"'`;&<>”‘’" for char in email) or any(char in "\"'`;&<>”‘’" for char in password) or any(char in "\"'`;&<>”‘’" for char in confirmPassword): # Checking for special characters in email and password
-                self.signup_text.setText("Invalid characters used in email or password") # Outputs a message notifying user has used invalid characters
-                return # Exiting the function early if invalid characters are used
-            if password != confirmPassword: # Compares password and confirm password box
-                self.signup_text.setText("Passwords do not match") # If they do not match outputs a message
-                return # Breaks code here
-            conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-            cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-            checkQuery = 'SELECT email FROM USERS WHERE email=?' # SQL query to check for existing emails
-            cur.execute(checkQuery, (email,)) # Executes the query
-            if cur.fetchone(): # If email is found runs if condition
-                self.signup_text.setText("Email already exists, please use a different one") # Outputs a message saying email already exists
-                return # Breaks code here
-            query = 'INSERT INTO USERS (email,password) VALUES (?,?)' # SQL statement to insert email and password into the DB
-            cur.execute(query, (email, password)) # Executing the query and passing email and password as tuple
-            conn.commit() # Committing the changes to the database
-            self.signup_text.setText("Account successfully registered") # Outputting a message telling user account has been registered
-            w2.hide(), w1.show()
-            
-    def backtologin(self):
-        '''Goes back to the login window'''
-        w2.hide(), w1.show() # Shows Login window and hides Signup window
+    def signup_function(self):
+        # Function to create a user account and insert it into the database
+        email = self.usernameSignUp_field.text()
+        password = self.passwordSignup_field.text()
+        confirm_password = self.confirmPass_field.text()
         
+        if len(email) == 0 or len(password) == 0 or len(confirm_password) == 0:
+            # Check if any of the fields are empty
+            self.signup_text.setText("Please input all fields")
+        else:
+            # Check for invalid characters in email and password
+            invalid_chars = "\"'`;&<>”‘’"
+            if any(char in invalid_chars for char in email) or any(char in invalid_chars for char in password) or any(char in invalid_chars for char in confirm_password):
+                self.signup_text.setText("Invalid characters used in email or password")
+                return
+            
+            if password != confirm_password:
+                # Compare password and confirm password
+                self.signup_text.setText("Passwords do not match")
+                return
+            
+            # Establish a connection to the SQL database
+            conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+            cur = conn.cursor()
+            
+            check_query = 'SELECT email FROM USERS WHERE email=?'
+            cur.execute(check_query, (email,))
+            
+            if cur.fetchone():
+                # Check if email already exists
+                self.signup_text.setText("Email already exists, please use a different one")
+                return
+            
+            # Insert email and password into the database
+            query = 'INSERT INTO USERS (email, password) VALUES (?, ?)'
+            cur.execute(query, (email, password))
+            conn.commit()
+            self.signup_text.setText("Account successfully registered")
+            w2.hide()
+            w1.show()
+            
+    def back_to_login(self):
+        # Function to go back to the login window
+        w2.hide()
+        w1.show()
 
 class MainWindow(QtWidgets.QMainWindow, window3):
     def __init__(self, parent=None):
+        # Initialize the MainWindow
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
-        loadUi("main_window.ui", self) # Loads to GUI file to operate on
-       
-        # Set title 
+        loadUi("main_window.ui", self)  # Load the GUI file.
+
+        # Set the title and initialize the table
         self.setWindowTitle('Main Window')
-        
-        # Initialising the table
         self.hoteltable()
         self.tableWidget.clicked.connect(self.openhotel)
         self.tableWidget.setColumnWidth(0, 600)
-        # Connecting buttons to their functions
+
+        # Connect buttons to their functions
         self.searchButton.clicked.connect(self.searchfunction)
         self.wifiButton.clicked.connect(self.wififilter)
         self.roomserviceButton.clicked.connect(self.roomservicefilter)
@@ -247,46 +266,36 @@ class MainWindow(QtWidgets.QMainWindow, window3):
         self.logoutButton.clicked.connect(self.logoutfunction)
         self.recommendationsButton.clicked.connect(self.recommendationsfunction)
         self.weatherButton.clicked.connect(self.weatherFetcher)
-        
-        
-        
+
     def logoutfunction(self):
-        '''Logs the user out the program
-           return -> void'''
-        w3.hide(), w1.show() # Hides the main window and shows the login window
-        
-        
+        # Log the user out
+        w3.hide()
+        w1.show()
+
     def showhelp(self):
-        '''Shows the help window
-           return -> void'''
+        # Show the help window
         w6.show()
-        
-        
+
     def hoteltable(self):
-        '''Loads the table with all the information from the database
-           return -> void '''
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query = 'SELECT * FROM HOTELS' # Selects all the rows from the HOTELS table
-        results = cur.execute(query) # Executes the query and stores it in results
-        self.tableWidget.setRowCount(5) # Sets the row count to 4
-        for i,row in enumerate(results): # Using for loop to get index and enumerate function to get items
-            self.tableWidget.setItem(i, 0 , QtWidgets.QTableWidgetItem(row[0])) # Adds first row from database to table
-            self.tableWidget.setItem(i, 1 , QtWidgets.QTableWidgetItem(row[1])) # Adds second row from database to table
-            self.tableWidget.setItem(i, 2 , QtWidgets.QTableWidgetItem(row[2])) # Adds third row from database to table
-            self.tableWidget.setItem(i, 3 , QtWidgets.QTableWidgetItem(row[3])) # Adds fourth row from database to table
-            self.tableWidget.setItem(i, 4 , QtWidgets.QTableWidgetItem(row[4])) # Adds fourth row from database to table
-            
-            
-    
-    
+        # Load the table with information from the database
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query = 'SELECT * FROM HOTELS'
+        results = cur.execute(query)
+        self.tableWidget.setRowCount(5)
+        for i, row in enumerate(results):
+            self.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(row[0]))
+            self.tableWidget.setItem(i, 1, QtWidgets.QTableWidgetItem(row[1]))
+            self.tableWidget.setItem(i, 2, QtWidgets.QTableWidgetItem(row[2]))
+            self.tableWidget.setItem(i, 3, QtWidgets.QTableWidgetItem(row[3]))
+            self.tableWidget.setItem(i, 4, QtWidgets.QTableWidgetItem(row[4]))
+
     def openhotel(self, index):
-        ''' Opens the hotel depending on what row was clicked
-            return -> void '''
+        # Open the hotel based on the clicked row
         row = index.row()
-        hotelName = self.tableWidget.item(row, 0).text() # Fetches the hotel name
-        if hotelName == "montcalm royal": # Checking what the name of the row is
-            w4.show() # Shows the window
+        hotelName = self.tableWidget.item(row, 0).text()
+        if hotelName == "montcalm royal":
+            w4.show()
         elif hotelName == "travelodge":
             w7.show()
         elif hotelName == "park grand":
@@ -296,507 +305,475 @@ class MainWindow(QtWidgets.QMainWindow, window3):
         else:
             w10.show()
         w3.close()
-        
-        
+
     def searchfunction(self):
-        ''' Searches for hotel in table
-            return -> void '''
-        search = self.searchText.text().lower() # Fetches search result and stores it in lower case
-        if any(char in "\"'`/;&<>”‘’" for char in search): # Checking for special characters in email and password
-                self.searchLabel.setText("Invalid characters used") # Outputs a message notifying user has used invalid characters
-                return # Exiting the function early if invalid characters are used
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query = 'SELECT hotel_name FROM HOTELS WHERE hotel_name=?' # SQL statement that finds hotel that matches search
-        cur.execute(query, (search,)) # Executes SQL query
-        result = cur.fetchone() # Fetches result
-        if result is None: # Checks if no items were selected
-            self.searchLabel.setText("Hotel not found") # Outputs a message to user
-            return # Breaks code here
-        self.searchLabel.setText("Hotel found") # Outputs a message to user
-        self.tableWidget.setRowCount(0) # Removes all rows
-        self.tableWidget.insertRow(0) # Inserts a new row for the search result
-        self.tableWidget.setItem(0,0,QtWidgets.QTableWidgetItem(result[0])) # Sets the item in the row to hotel
-        
+        # Search for a hotel in the table
+        search = self.searchText.text().lower()
+        if any(char in "\"'`/;&<>”‘’" for char in search):
+            self.searchLabel.setText("Invalid characters used")
+            return
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query = 'SELECT hotel_name FROM HOTELS WHERE hotel_name=?'
+        cur.execute(query, (search,))
+        result = cur.fetchone()
+        if result is None:
+            self.searchLabel.setText("Hotel not found")
+            return
+        self.searchLabel.setText("Hotel found")
+        self.tableWidget.setRowCount(0)
+        self.tableWidget.insertRow(0)
+        self.tableWidget.setItem(0, 0, QtWidgets.QTableWidgetItem(result[0]))
+
     def wififilter(self):
-        '''Filters out hotels and only includes hotels with wifi
-           return -> void'''
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query = 'SELECT hotel_name FROM HOTELS WHERE wifi=1' # SQL statement to find hotels with wifi
-        cur.execute(query) # Executes query
-        results = cur.fetchall() # Fetches hotels
-        print(results) # Printing for testing purposes
-        self.tableWidget.setRowCount(0) # Removes all rows at position 0
-        for i,rows in enumerate(results): # Using for loop to get index and enumerate function to get items in the tuple
-            print(i, rows) # Printing for testing purposes
-            self.tableWidget.insertRow(i) # Inserts a row
-            self.tableWidget.setItem(i, 0 , QtWidgets.QTableWidgetItem(rows[0])) # Adds first row from database to table
-                      
+        # Filter hotels with WiFi
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query = 'SELECT hotel_name FROM HOTELS WHERE wifi=1'
+        cur.execute(query)
+        results = cur.fetchall()
+        self.tableWidget.setRowCount(0)
+        for i, rows in enumerate(results):
+            self.tableWidget.insertRow(i)
+            self.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(rows[0]))
+
     def roomservicefilter(self):
-        '''Filters out hotels and only includes hotels with room service
-           return -> void'''
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query = 'SELECT hotel_name FROM HOTELS WHERE room_service=1' # SQL statement to find hotels with room service
-        cur.execute(query) # Executes query
-        results = cur.fetchall() # Fetches hotels
-        print(results) # Printing for testing purposes
-        self.tableWidget.setRowCount(0) # Removes all rowsat position 0
-        for i,rows in enumerate(results): # Using for loop to get index and enumerate function to get items in the tuple
-            print(i, rows) # Printing for testing purposes
-            self.tableWidget.insertRow(i) # Inserts a row
-            self.tableWidget.setItem(i, 0 , QtWidgets.QTableWidgetItem(rows[0])) # Adds first row from database to table
-        
+        # Filter hotels with room service
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query = 'SELECT hotel_name FROM HOTELS WHERE room_service=1'
+        cur.execute(query)
+        results = cur.fetchall()
+        self.tableWidget.setRowCount(0)
+        for i, rows in enumerate(results):
+            self.tableWidget.insertRow(i)
+            self.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(rows[0]))
+
     def petsfilter(self):
-        '''Filters out hotels and only includes hotels with pets allowed
-           return -> void'''
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query = 'SELECT hotel_name FROM HOTELS WHERE pets=1' # SQL statement to find hotels with pets allowed
-        cur.execute(query) # Executes query
-        results = cur.fetchall() # Fetches hotels
-        print(results) # Printing for testing purposes
-        self.tableWidget.setRowCount(0) # Removes all rowsat position 0
-        for i,rows in enumerate(results): # Using for loop to get index and enumerate function to get items in the tuple
-            print(i, rows) # Printing for testing purposes
-            self.tableWidget.insertRow(i) # Inserts a row
-            self.tableWidget.setItem(i, 0 , QtWidgets.QTableWidgetItem(rows[0])) # Adds first row from database to table
-            
-    def clearsearchfunction(self):
-        ''' Clears any searches or filters applied to the table
-            return -> void '''
-        self.tableWidget.setRowCount(0) # Removes all rows at position 0
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query = 'SELECT * FROM HOTELS' # Selects all the rows from the HOTELS table
-        results = cur.execute(query) # Executes the query and stores it in results
-        self.tableWidget.setRowCount(len(result))
-        for i,row in enumerate(results): # Using for loop to get index and enumerate function to get items
-            self.tableWidget.setItem(i, 0 , QtWidgets.QTableWidgetItem(row[0])) # Adds first row from database to table
-            self.tableWidget.setItem(i, 1 , QtWidgets.QTableWidgetItem(row[1])) # Adds second row from database to table
-            self.tableWidget.setItem(i, 2 , QtWidgets.QTableWidgetItem(row[2])) # Adds third row from database to table
-            self.tableWidget.setItem(i, 3 , QtWidgets.QTableWidgetItem(row[3])) # Adds fourth row from database to table
-            
-            
+        # Filter hotels allowing pets
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query = 'SELECT hotel_name FROM HOTELS WHERE pets=1'
+        cur.execute(query)
+        results = cur.fetchall()
+        self.tableWidget.setRowCount(0)
+        for i, rows in enumerate(results):
+            self.tableWidget.insertRow(i)
+            self.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(rows[0]))
+
+        def clearsearchfunction(self):
+        # Clear any searches or filters applied to the table
+        self.tableWidget.setRowCount(0)
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query = 'SELECT * FROM HOTELS'
+        results = cur.execute(query)
+        self.tableWidget.setRowCount(len(results))
+        for i, row in enumerate(results):
+            self.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(row[0]))
+            self.tableWidget.setItem(i, 1, QtWidgets.QTableWidgetItem(row[1]))
+            self.tableWidget.setItem(i, 2, QtWidgets.QTableWidgetItem(row[2]))
+            self.tableWidget.setItem(i, 3, QtWidgets.QTableWidgetItem(row[3]))
+
     def recommendationsfunction(self):
-        ''' Recommends hotel to users
-            return -> void '''
-        self.tableWidget.setRowCount(0) # Removes all rows at position 0
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query1 = 'SELECT id FROM USERS WHERE email=?' # Query to fetch user ID
-        cur.execute(query1, (email,)) # Executes the query
-        uniqueID = cur.fetchone() # Fetches the id
-        query2 = '''SELECT DISTINCT H.*              
+        # Recommend hotels to users based on their history
+        self.tableWidget.setRowCount(0)
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query1 = 'SELECT id FROM USERS WHERE email=?'
+        cur.execute(query1, (email,))
+        uniqueID = cur.fetchone()
+        query2 = '''SELECT DISTINCT H.*
                     FROM HOTELS H
                     INNER JOIN USER_BOOKINGS UB
                     ON H.hotel_name = UB.hotel_name
                     WHERE UB.id = ?;'''
-        cur.execute(query2, (uniqueID[0],)) # Executes query
-        result = cur.fetchall() # Stores result
-        print (result) # Outputting for testing
-        for i,rows in enumerate(result): # Using for loop to get index and enumerate function to get items
-            print(i, rows) # Printing for testing purposes
-            self.tableWidget.insertRow(i) # Inserts a row
-            self.tableWidget.setItem(i, 0 , QtWidgets.QTableWidgetItem(rows[0])) # Adds first row from database to table
-            
-    def weatherFetcher(self):
-        '''Retreieves weathers from internet for london
-           return -> void'''
-        apiKey = "[Enter API KEY HERE]" # API key to access API
-        baseUrl = "https://api.openweathermap.org/data/2.5/weather" # URL
-        requestsUrl = f"{baseUrl}?appid={apiKey}&q=london" # Passing in parameters to the URL
-        response = requests.get(requestsUrl)
-        if response.status_code == 200: # Successful connection
-            data = response.json() # Stores data in location data
-            weather = data['weather'][0]['description'] # Get the weather description from the API response data
-            temperature = round(data["main"]["temp"] - 273.15, 2) # Convert the temperature from Kelvin to Celsius and round to 2 decimal places
-            print ("Weather: ", weather) # Print the weather to the shell
-            print ("Temperature: ", temperature, "celsius") # Print the temperature to the shell
-        
-            self.weatherText.setText(f"""Weather: {weather}
-Temperature: {temperature}°C""") # Set the weather text in the GUI
-        else: # If the API cannot connect, display an error message in the GUI
-            self.weatherText.setText("An error has occured")
-           
-        
-       
+        cur.execute(query2, (uniqueID[0],))
+        result = cur.fetchall()
+        for i, rows in enumerate(result):
+            self.tableWidget.insertRow(i)
+            self.tableWidget.setItem(i, 0, QtWidgets.QTableWidgetItem(rows[0]))
 
+    def weatherFetcher(self):
+        # Retrieve weather information from the internet for London
+        apiKey = "[Enter API KEY HERE]"
+        baseUrl = "https://api.openweathermap.org/data/2.5/weather"
+        requestsUrl = f"{baseUrl}?appid={apiKey}&q=london"
+        response = requests.get(requestsUrl)
+        if response.status_code == 200:
+            data = response.json()
+            weather = data['weather'][0]['description']
+            temperature = round(data["main"]["temp"] - 273.15, 2)
+            print("Weather: ", weather)
+            print("Temperature: ", temperature, "celsius")
+            self.weatherText.setText(f"""Weather: {weather} 
+                                         Temperature: {temperature}°C""")
+        else:
+            self.weatherText.setText("An error has occurred")
+            
 class MontcalmRoyal(QtWidgets.QMainWindow, window4):
-    def __init__(self,parent=None):
-            QtWidgets.QMainWindow.__init__(self, parent)
-            self.setupUi(self)
-            
-            #title
-            self.setWindowTitle('Montcalm Royal')
-            
-            # Connecting buttons to their functions
-            self.montcalmBackButton.clicked.connect(self.goback)
-            self.bookdateButton.clicked.connect(self.makebooking)
-            self.graphButton.clicked.connect(self.showgraph)
-            
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+        self.setupUi(self)
+
+        # Set window title
+        self.setWindowTitle('Montcalm Royal')
+
+        # Connect buttons to their functions
+        self.montcalmBackButton.clicked.connect(self.goback)
+        self.bookdateButton.clicked connect(self.makebooking)
+        self.graphButton.clicked.connect(self.showgraph)
+
     def showgraph(self):
-        '''Shows monthly visits
-           return -> void'''
-        graph = Graph(hotelname="montcalm royal", parent=self) # Passing hotel name
-        graph.show() # Showing the Graph window
-            
+        # Display a monthly visits graph
+        graph = Graph(hotelname="montcalm royal", parent=self)
+        graph.show()
+
     def goback(self):
-        ''' Takes user back to home page'''
-        w3.show(), w4.hide() # Hides the hotel window and opens the main window
-        
+        # Return to the main window
+        w3.show(), w4.hide()
+
     def createPDF(self, dateString, costPerNight, email):
-        '''Creates a PDF for when a booking is made
-           return -> void'''
-        pdf = FPDF() # Creates PDF file
-        pdf.add_page() # Adds a page
+        # Create a PDF for booking confirmation
+        pdf = FPDF()
+        pdf.add_page()
         pdf.set_font("Arial", size=12)
-        # Populating the PDF
         pdf.cell(200, 10, txt="Hotel Booking Confirmation", ln=1, align="C")
         pdf.cell(200, 10, txt="Hotel Name: Montcalm Royal", ln=1, align="L")
         pdf.cell(200, 10, txt="Reservation Date: " + dateString, ln=1, align="L")
         pdf.cell(200, 10, txt="Cost per Night: £" + str(costPerNight[0]), ln=1, align="L")
         pdf.cell(200, 10, txt="Email: " + email, ln=1, align="L")
-        pdf.output("Montcalm_Royal_Booking_Confirmation.pdf") # Stores it in directory under name
-    
+        pdf.output("Montcalm_Royal_Booking_Confirmation.pdf")
+
     def makebooking(self):
-        '''Inserts booking into SQL database
-           return -> void'''
-        global email
-        selectedDate = self.dateEdit.date() # Fetches the date entered in date edit
-        dateString = selectedDate.toString('dd-MM-yyyy') # Changes string format
-        currentDate = datetime.now() # Fetches the current date
-        if selectedDate < currentDate: # Checks whether booking date is before current time
-            self.bookingLabel.setText("Invalid date") # Outputs a message to GUI
-            return # Breaks code here
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query1 = 'SELECT id FROM USERS WHERE email=?' # SQL statement to retrieve user id
-        cur.execute(query1, (email,)) # Executes the query
-        uniqueID = cur.fetchone() # Fetches the id
-        cpnQuery = 'SELECT cpn FROM HOTELS WHERE hotel_name="montcalm royal"' # SQL statement to fetch cost
-        cur.execute(cpnQuery) # Executes SQL statement
-        costPerNight = cur.fetchone() # Fetches cpn
-        query2 = 'INSERT INTO USER_BOOKINGS (id, hotel_name, reservation_date, cpn) VALUES (?,?,?,?)' # Insert into linking table
-        try: # Tries to do this
-            cur.execute(query2, (uniqueID[0],"montcalm royal", dateString, costPerNight[0])) # Executes SQL statement
-            conn.commit() # Commits the changes made
-            self.bookingLabel.setText("Booking confirmed") # Output to the GUI saying booking is confirmed
-            self.createPDF(dateString, costPerNight, email) # Creating a pdf using this function
-        except sqlite3.IntegrityError: # If an error occurs do this instead
-            self.bookingLabel.setText("Duplicate bookings are not allowed") # Outputs a messsage GUI
+        # Insert booking into the SQL database
+        selectedDate = self.dateEdit.date()
+        dateString = selectedDate.toString('dd-MM-yyyy')
+        currentDate = datetime.now()
+        if selectedDate < currentDate:
+            self.bookingLabel.setText("Invalid date")
+            return
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query1 = 'SELECT id FROM USERS WHERE email=?'
+        cur.execute(query1, (email,))
+        uniqueID = cur.fetchone()
+        cpnQuery = 'SELECT cpn FROM HOTELS WHERE hotel_name="montcalm royal"'
+        cur.execute(cpnQuery)
+        costPerNight = cur.fetchone()
+        query2 = 'INSERT INTO USER_BOOKINGS (id, hotel_name, reservation_date, cpn) VALUES (?,?,?,?)'
+        try:
+            cur.execute(query2, (uniqueID[0], "montcalm royal", dateString, costPerNight[0]))
+            conn.commit()
+            self.bookingLabel.setText("Booking confirmed")
+            self.createPDF(dateString, costPerNight, email)
+        except sqlite3.IntegrityError:
+            self.bookingLabel.setText("Duplicate bookings are not allowed")
             
 class Travelodge(QtWidgets.QMainWindow, window7):
-    def __init__(self,parent=None):
-            QtWidgets.QMainWindow.__init__(self, parent)
-            self.setupUi(self)
-            
-            #title
-            self.setWindowTitle('Travelodge')
-            
-            # Connecting buttons to their functions
-            self.montcalmBackButton.clicked.connect(self.goback)
-            self.bookdateButton.clicked.connect(self.makebooking)
-            self.graphButton.clicked.connect(self.showgraph)
-            
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+        self.setupUi(self)
+
+        # Set window title
+        self.setWindowTitle('Travelodge')
+
+        # Connect buttons to their functions
+        self.montcalmBackButton.clicked.connect(self.goback)
+        self.bookdateButton.clicked connect(self.makebooking)
+        self.graphButton.clicked.connect(self.showgraph)
+
     def showgraph(self):
-        '''Shows monthly visits
-           return -> void'''
-        graph = Graph(hotelname="travelodge", parent=self) # Passing hotel name
-        graph.show() # Showing the Graph window
-            
+        # Display a monthly visits graph for Travelodge hotel
+        graph = Graph(hotelname="travelodge", parent=self)
+        graph.show()
+
     def goback(self):
-        ''' Takes user back to home page'''
-        w3.show(), w4.hide() # Hides the hotel window and opens the main window
-        
+        # Return to the main window from the Travelodge window
+        w3.show()
+        w7.hide()
+
     def createPDF(self, dateString, costPerNight, email):
-        '''Creates a PDF for when a booking is made
-           return -> void'''
-        pdf = FPDF() # Creates PDF file
-        pdf.add_page() # Adds a page
+        # Create a PDF document for booking confirmation
+        pdf = FPDF()
+        pdf.add_page()
         pdf.set_font("Arial", size=12)
-        # Populating the PDF
         pdf.cell(200, 10, txt="Hotel Booking Confirmation", ln=1, align="C")
         pdf.cell(200, 10, txt="Hotel Name: Travelodge", ln=1, align="L")
         pdf.cell(200, 10, txt="Reservation Date: " + dateString, ln=1, align="L")
         pdf.cell(200, 10, txt="Cost per Night: £" + str(costPerNight[0]), ln=1, align="L")
         pdf.cell(200, 10, txt="Email: " + email, ln=1, align="L")
-        pdf.output("Travelodge_Booking_Confirmation.pdf") # Stores it in directory under name
-    
+        pdf.output("Travelodge_Booking_Confirmation.pdf")  # Save the PDF document
+
     def makebooking(self):
-        '''Inserts booking into SQL database
-           return -> void'''
+        # Insert a booking into the SQL database
         global email
-        selectedDate = self.dateEdit.date() # Fetches the date entered in date edit
-        dateString = selectedDate.toString('dd-MM-yyyy') # Changes string format
-        currentDate = datetime.now() # Fetches the current date
-        if selectedDate < currentDate: # Checks whether booking date is before current time
-            self.bookingLabel.setText("Invalid date") # Outputs a message to GUI
-            return # Breaks code here
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query1 = 'SELECT id FROM USERS WHERE email=?' # SQL statement to retrieve user id
-        cur.execute(query1, (email,)) # Executes the query
-        uniqueID = cur.fetchone() # Fetches the id
-        cpnQuery = 'SELECT cpn FROM HOTELS WHERE hotel_name="travelodge"' # SQL statement to fetch cost
-        cur.execute(cpnQuery) # Executes SQL statement
-        costPerNight = cur.fetchone() # Fetches cpn
-        query2 = 'INSERT INTO USER_BOOKINGS (id, hotel_name, reservation_date, cpn) VALUES (?,?,?,?)' # Insert into linking table
-        try: # Tries to do this
-            cur.execute(query2, (uniqueID[0],"montcalm royal", dateString, costPerNight[0])) # Executes SQL statement
-            conn.commit() # Commits the changes made
-            self.bookingLabel.setText("Booking confirmed") # Output to the GUI saying booking is confirmed
-            self.createPDF(dateString, costPerNight, email) # Creating a pdf using this function
-        except sqlite3.IntegrityError: # If an error occurs do this instead
-            self.bookingLabel.setText("Duplicate bookings are not allowed") # Outputs a messsage GUI
-            
+        selectedDate = self.dateEdit.date()
+        dateString = selectedDate.toString('dd-MM-yyyy')
+        currentDate = datetime.now()
+        if selectedDate < currentDate:
+            self.bookingLabel.setText("Invalid date")
+            return
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query1 = 'SELECT id FROM USERS WHERE email=?'
+        cur.execute(query1, (email,))
+        uniqueID = cur.fetchone()
+        cpnQuery = 'SELECT cpn FROM HOTELS WHERE hotel_name="travelodge"'
+        cur.execute(cpnQuery)
+        costPerNight = cur.fetchone()
+        query2 = 'INSERT INTO USER_BOOKINGS (id, hotel_name, reservation_date, cpn) VALUES (?,?,?,?)'
+        try:
+            cur.execute(query2, (uniqueID[0], "travelodge", dateString, costPerNight[0]))
+            conn.commit()
+            self.bookingLabel.setText("Booking confirmed")
+            self.createPDF(dateString, costPerNight, email)
+        except sqlite3.IntegrityError:
+            self.bookingLabel.setText("Duplicate bookings are not allowed")
             
 class ParkGrand(QtWidgets.QMainWindow, window8):
-    def __init__(self,parent=None):
-            QtWidgets.QMainWindow.__init__(self, parent)
-            self.setupUi(self)
-            
-            #title
-            self.setWindowTitle('Park Grand')
-            
-            # Connecting buttons to their functions
-            self.montcalmBackButton.clicked.connect(self.goback)
-            self.bookdateButton.clicked.connect(self.makebooking)
-            self.graphButton.clicked.connect(self.showgraph)
-            
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+        self.setupUi(self)
+
+        # Set window title
+        self.setWindowTitle('Park Grand')
+
+        # Connect buttons to their functions
+        self.montcalmBackButton.clicked.connect(self.goback)
+        self.bookdateButton.clicked.connect(self.makebooking)
+        self.graphButton.clicked.connect(self.showgraph)
+
     def showgraph(self):
-        '''Shows monthly visits
-           return -> void'''
-        graph = Graph(hotelname="park grand", parent=self) # Passing hotel name
-        graph.show() # Showing the Graph window
-            
+        # Display a monthly visits graph for Park Grand hotel
+        graph = Graph(hotelname="park grand", parent=self)
+        graph.show()
+
     def goback(self):
-        ''' Takes user back to home page'''
-        w3.show(), w4.hide() # Hides the hotel window and opens the main window
-        
+        # Return to the main window from the Park Grand hotel window
+        w3.show()
+        w4.hide()
+
     def createPDF(self, dateString, costPerNight, email):
-        '''Creates a PDF for when a booking is made
-           return -> void'''
-        pdf = FPDF() # Creates PDF file
-        pdf.add_page() # Adds a page
+        # Create a PDF document for booking confirmation
+        pdf = FPDF()
+        pdf.add_page()
         pdf.set_font("Arial", size=12)
-        # Populating the PDF
         pdf.cell(200, 10, txt="Hotel Booking Confirmation", ln=1, align="C")
         pdf.cell(200, 10, txt="Hotel Name: Park Grand", ln=1, align="L")
         pdf.cell(200, 10, txt="Reservation Date: " + dateString, ln=1, align="L")
         pdf.cell(200, 10, txt="Cost per Night: £" + str(costPerNight[0]), ln=1, align="L")
         pdf.cell(200, 10, txt="Email: " + email, ln=1, align="L")
-        pdf.output("Park_grand_Booking_Confirmation.pdf") # Stores it in directory under name
-    
+        pdf.output("Park_grand_Booking_Confirmation.pdf")  # Save the PDF document
+
     def makebooking(self):
-        '''Inserts booking into SQL database
-           return -> void'''
+        # Insert a booking into the SQL database
         global email
-        selectedDate = self.dateEdit.date() # Fetches the date entered in date edit
-        dateString = selectedDate.toString('dd-MM-yyyy') # Changes string format
-        currentDate = datetime.now() # Fetches the current date
-        if selectedDate < currentDate: # Checks whether booking date is before current time
-            self.bookingLabel.setText("Invalid date") # Outputs a message to GUI
-            return # Breaks code here
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query1 = 'SELECT id FROM USERS WHERE email=?' # SQL statement to retrieve user id
-        cur.execute(query1, (email,)) # Executes the query
-        uniqueID = cur.fetchone() # Fetches the id
-        cpnQuery = 'SELECT cpn FROM HOTELS WHERE hotel_name="park grand"' # SQL statement to fetch cost
-        cur.execute(cpnQuery) # Executes SQL statement
-        costPerNight = cur.fetchone() # Fetches cpn
-        query2 = 'INSERT INTO USER_BOOKINGS (id, hotel_name, reservation_date, cpn) VALUES (?,?,?,?)' # Insert into linking table
-        try: # Tries to do this
-            cur.execute(query2, (uniqueID[0],"park grand", dateString, costPerNight[0])) # Executes SQL statement
-            conn.commit() # Commits the changes made
-            self.bookingLabel.setText("Booking confirmed") # Output to the GUI saying booking is confirmed
-            self.createPDF(dateString, costPerNight, email) # Creating a pdf using this function
-        except sqlite3.IntegrityError: # If an error occurs do this instead
-            self.bookingLabel.setText("Duplicate bookings are not allowed") # Outputs a messsage GUI
-
-
+        selectedDate = self.dateEdit.date()
+        dateString = selectedDate.toString('dd-MM-yyyy')
+        currentDate = datetime.now()
+        if selectedDate < currentDate:
+            self.bookingLabel.setText("Invalid date")
+            return
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query1 = 'SELECT id FROM USERS WHERE email=?'
+        cur.execute(query1, (email,))
+        uniqueID = cur.fetchone()
+        cpnQuery = 'SELECT cpn FROM HOTELS WHERE hotel_name="park grand"'
+        cur.execute(cpnQuery)
+        costPerNight = cur.fetchone()
+        query2 = 'INSERT INTO USER_BOOKINGS (id, hotel_name, reservation_date, cpn) VALUES (?,?,?,?)'
+        try:
+            cur.execute(query2, (uniqueID[0], "park grand", dateString, costPerNight[0]))
+            conn.commit()
+            self.bookingLabel.setText("Booking confirmed")
+            self.createPDF(dateString, costPerNight, email)
+        except sqlite3.IntegrityError:
+            self.bookingLabel.setText("Duplicate bookings are not allowed")
+            
 class Canopy(QtWidgets.QMainWindow, window9):
-    def __init__(self,parent=None):
-            QtWidgets.QMainWindow.__init__(self, parent)
-            self.setupUi(self)
-            
-            #title
-            self.setWindowTitle('Canopy')
-            
-            # Connecting buttons to their functions
-            self.montcalmBackButton.clicked.connect(self.goback)
-            self.bookdateButton.clicked.connect(self.makebooking)
-            self.graphButton.clicked.connect(self.showgraph)
-            
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+        self.setupUi(self)
+
+        # Set window title
+        self.setWindowTitle('Canopy')
+
+        # Connect buttons to their functions
+        self.montcalmBackButton.clicked.connect(self.goback)
+        self.bookdateButton.clicked.connect(self.makebooking)
+        self.graphButton.clicked connect(self.showgraph)
+
     def showgraph(self):
-        '''Shows monthly visits
-           return -> void'''
-        graph = Graph(hotelname="canopy", parent=self) # Passing hotel name
-        graph.show() # Showing the Graph window
-            
+        # Display a monthly visits graph for Canopy hotel
+        graph = Graph(hotelname="canopy", parent=self)
+        graph.show()
+
     def goback(self):
-        ''' Takes user back to home page'''
-        w3.show(), w4.hide() # Hides the hotel window and opens the main window
-        
+        # Return to the main window from the Canopy hotel window
+        w3.show()
+        w4.hide()
+
     def createPDF(self, dateString, costPerNight, email):
-        '''Creates a PDF for when a booking is made
-           return -> void'''
-        pdf = FPDF() # Creates PDF file
-        pdf.add_page() # Adds a page
+        # Create a PDF document for booking confirmation
+        pdf = FPDF()
+        pdf.add_page()
         pdf.set_font("Arial", size=12)
-        # Populating the PDF
         pdf.cell(200, 10, txt="Hotel Booking Confirmation", ln=1, align="C")
         pdf.cell(200, 10, txt="Hotel Name: Canopy", ln=1, align="L")
         pdf.cell(200, 10, txt="Reservation Date: " + dateString, ln=1, align="L")
         pdf.cell(200, 10, txt="Cost per Night: £" + str(costPerNight[0]), ln=1, align="L")
         pdf.cell(200, 10, txt="Email: " + email, ln=1, align="L")
-        pdf.output("Canopy_Booking_Confirmation.pdf") # Stores it in directory under name
-    
-    def makebooking(self):
-        '''Inserts booking into SQL database
-           return -> void'''
-        global email
-        selectedDate = self.dateEdit.date() # Fetches the date entered in date edit
-        dateString = selectedDate.toString('dd-MM-yyyy') # Changes string format
-        currentDate = datetime.now() # Fetches the current date
-        if selectedDate < currentDate: # Checks whether booking date is before current time
-            self.bookingLabel.setText("Invalid date") # Outputs a message to GUI
-            return # Breaks code here
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query1 = 'SELECT id FROM USERS WHERE email=?' # SQL statement to retrieve user id
-        cur.execute(query1, (email,)) # Executes the query
-        uniqueID = cur.fetchone() # Fetches the id
-        cpnQuery = 'SELECT cpn FROM HOTELS WHERE hotel_name="canopy"' # SQL statement to fetch cost
-        cur.execute(cpnQuery) # Executes SQL statement
-        costPerNight = cur.fetchone() # Fetches cpn
-        query2 = 'INSERT INTO USER_BOOKINGS (id, hotel_name, reservation_date, cpn) VALUES (?,?,?,?)' # Insert into linking table
-        try: # Tries to do this
-            cur.execute(query2, (uniqueID[0],"canopy", dateString, costPerNight[0])) # Executes SQL statement
-            conn.commit() # Commits the changes made
-            self.bookingLabel.setText("Booking confirmed") # Output to the GUI saying booking is confirmed
-            self.createPDF(dateString, costPerNight, email) # Creating a pdf using this function
-        except sqlite3.IntegrityError: # If an error occurs do this instead
-            self.bookingLabel.setText("Duplicate bookings are not allowed") # Outputs a messsage GUI
+        pdf.output("Canopy_Booking_Confirmation.pdf")  # Save the PDF document
 
+    def makebooking(self):
+        # Insert a booking into the SQL database
+        global email
+        selectedDate = self.dateEdit.date()
+        dateString = selectedDate.toString('dd-MM-yyyy')
+        currentDate = datetime.now()
+        if selectedDate < currentDate:
+            self.bookingLabel.setText("Invalid date")
+            return
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query1 = 'SELECT id FROM USERS WHERE email=?'
+        cur.execute(query1, (email,))
+        uniqueID = cur.fetchone()
+        cpnQuery = 'SELECT cpn FROM HOTELS WHERE hotel_name="canopy"'
+        cur.execute(cpnQuery)
+        costPerNight = cur.fetchone()
+        query2 = 'INSERT INTO USER_BOOKINGS (id, hotel_name, reservation_date, cpn) VALUES (?,?,?,?)'
+        try:
+            cur.execute(query2, (uniqueID[0], "canopy", dateString, costPerNight[0]))
+            conn.commit()
+            self.bookingLabel.setText("Booking confirmed")
+            self.createPDF(dateString, costPerNight, email)
+        except sqlite3.IntegrityError:
+            self.bookingLabel.setText("Duplicate bookings are not allowed")
 
 class ResidentCovent(QtWidgets.QMainWindow, window10):
-    def __init__(self,parent=None):
-            QtWidgets.QMainWindow.__init__(self, parent)
-            self.setupUi(self)
-            
-            #title
-            self.setWindowTitle('Resident Covent')
-            
-            # Connecting buttons to their functions
-            self.montcalmBackButton.clicked.connect(self.goback)
-            self.bookdateButton.clicked.connect(self.makebooking)
-            self.graphButton.clicked.connect(self.showgraph)
-            
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+        self.setupUi(self)
+
+        # Set window title
+        self.setWindowTitle('Resident Covent')
+
+        # Connect buttons to their functions
+        self.montcalmBackButton.clicked.connect(self.goback)
+        self.bookdateButton.clicked.connect(self.makebooking)
+        self.graphButton.clicked.connect(self.showgraph)
+
     def showgraph(self):
-        '''Shows monthly visits
-           return -> void'''
-        graph = Graph(hotelname="resident covent", parent=self) # Passing hotel name
-        graph.show() # Showing the Graph window
-            
+        # Display a monthly visits graph for Resident Covent hotel
+        graph = Graph(hotelname="resident covent", parent=self)
+        graph.show()
+
     def goback(self):
-        ''' Takes user back to home page'''
-        w3.show(), w4.hide() # Hides the hotel window and opens the main window
-        
+        # Return to the main window from the Resident Covent hotel window
+        w3.show()
+        w4.hide()
+
     def createPDF(self, dateString, costPerNight, email):
-        '''Creates a PDF for when a booking is made
-           return -> void'''
-        pdf = FPDF() # Creates PDF file
-        pdf.add_page() # Adds a page
+        # Create a PDF document for booking confirmation
+        pdf = FPDF()
+        pdf.add_page()
         pdf.set_font("Arial", size=12)
-        # Populating the PDF
         pdf.cell(200, 10, txt="Hotel Booking Confirmation", ln=1, align="C")
         pdf.cell(200, 10, txt="Hotel Name: Resident Covent", ln=1, align="L")
         pdf.cell(200, 10, txt="Reservation Date: " + dateString, ln=1, align="L")
         pdf.cell(200, 10, txt="Cost per Night: £" + str(costPerNight[0]), ln=1, align="L")
         pdf.cell(200, 10, txt="Email: " + email, ln=1, align="L")
-        pdf.output("Resident_covent_Booking_Confirmation.pdf") # Stores it in directory under name
-    
-    def makebooking(self):
-        '''Inserts booking into SQL database
-           return -> void'''
-        global email
-        selectedDate = self.dateEdit.date() # Fetches the date entered in date edit
-        dateString = selectedDate.toString('dd-MM-yyyy') # Changes string format
-        currentDate = datetime.now() # Fetches the current date
-        if selectedDate < currentDate: # Checks whether booking date is before current time
-            self.bookingLabel.setText("Invalid date") # Outputs a message to GUI
-            return # Breaks code here
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        query1 = 'SELECT id FROM USERS WHERE email=?' # SQL statement to retrieve user id
-        cur.execute(query1, (email,)) # Executes the query
-        uniqueID = cur.fetchone() # Fetches the id
-        cpnQuery = 'SELECT cpn FROM HOTELS WHERE hotel_name="resident covent"' # SQL statement to fetch cost
-        cur.execute(cpnQuery) # Executes SQL statement
-        costPerNight = cur.fetchone() # Fetches cpn
-        query2 = 'INSERT INTO USER_BOOKINGS (id, hotel_name, reservation_date, cpn) VALUES (?,?,?,?)' # Insert into linking table
-        try: # Tries to do this
-            cur.execute(query2, (uniqueID[0],"resident covent", dateString, costPerNight[0])) # Executes SQL statement
-            conn.commit() # Commits the changes made
-            self.bookingLabel.setText("Booking confirmed") # Output to the GUI saying booking is confirmed
-            self.createPDF(dateString, costPerNight, email) # Creating a pdf using this function
-        except sqlite3.IntegrityError: # If an error occurs do this instead
-            self.bookingLabel.setText("Duplicate bookings are not allowed") # Outputs a messsage GUI
+        pdf.output("Resident_Covent_Booking_Confirmation.pdf")  # Save the PDF document
 
+    def makebooking(self):
+        # Insert a booking into the SQL database
+        global email
+        selectedDate = self.dateEdit.date()
+        dateString = selectedDate.toString('dd-MM-yyyy')
+        currentDate = datetime.now()
+        if selectedDate < currentDate:
+            self.bookingLabel.setText("Invalid date")
+            return
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+        query1 = 'SELECT id FROM USERS WHERE email=?'
+        cur.execute(query1, (email,))
+        uniqueID = cur.fetchone()
+        cpnQuery = 'SELECT cpn FROM HOTELS WHERE hotel_name="resident covent"'
+        cur.execute(cpnQuery)
+        costPerNight = cur.fetchone()
+        query2 = 'INSERT INTO USER_BOOKINGS (id, hotel_name, reservation_date, cpn) VALUES (?,?,?,?)'
+        try:
+            cur.execute(query2, (uniqueID[0], "resident covent", dateString, costPerNight[0]))
+            conn.commit()
+            self.bookingLabel.setText("Booking confirmed")
+            self.createPDF(dateString, costPerNight, email)
+        except sqlite3.IntegrityError:
+            self.bookingLabel.setText("Duplicate bookings are not allowed")
 
 class Graph(QtWidgets.QMainWindow, window5):
     def __init__(self, hotelname=None, parent=None):
+        # Initialize the QMainWindow and set up the UI
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         self.hotelname = hotelname
+
+        # Create the graph and set the window title
         self.drawgraph(hotelname)
         self.setWindowTitle("Graph")
-        
-        
+
     def drawgraph(self, hotelname):
-        '''Draws the graph
-           return -> void'''
-        self.figure = Figure()  # Create a figure object
+        # Create a Figure for the graph
+        self.figure = Figure()
         self.ax = self.figure.add_subplot(111)
-        self.canvas = FigureCanvas(self.figure) # Create a canvas object to display the figure
-        self.setCentralWidget(self.canvas) # Add the canvas to the main window
-        self.ax.set_xlabel("Months") # Sets x axis label to months
-        self.ax.set_ylabel("Number of Bookings") # Sets y axis labels to number of bookings
-        x = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] # Values for x axis
-        y = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] # Values for y axis
-        self.ax.bar(x, y)
-        conn = sqlite3.connect("D:\MY folder\hotelDB.db") # Establishes a connection to the SQL database
-        cur = conn.cursor() # Creates a cursor object to execute the SQL statements
-        print(hotelname)
-        query = "SELECT substr(reservation_date, 4, 2) as month, count(*) as count FROM USER_BOOKINGS WHERE hotel_name=? group by month" # Fetches months of bookings
-        cur.execute(query, (hotelname,)) # Executes the SQL statements
-        data = cur.fetchall() # Fetches all the data
-        monthMap = {1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'} #Hashmap
-        x = [] # Creates a list for x axis
-        y = [] # Creates a list for y axis
-        for row in data: # For loop
-            if row[0]: 
-                x.append(monthMap[int(row[0])]) # Appends items to x list
-                y.append(row[1]) # Appends items to x list
+        self.canvas = FigureCanvas(self.figure)
+        
+        # Set the canvas as the central widget
+        self.setCentralWidget(self.canvas)
+
+        # Set labels for the X and Y axes
+        self.ax.set_xlabel("Months")
+        self.ax.set_ylabel("Number of Bookings")
+
+        # Initialize empty lists for X and Y data
+        x = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        y = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        # Connect to the SQLite database
+        conn = sqlite3.connect("D:\MY folder\hotelDB.db")
+        cur = conn.cursor()
+
+        # Query to fetch the number of bookings for each month
+        query = "SELECT substr(reservation_date, 4, 2) as month, count(*) as count FROM USER_BOOKINGS WHERE hotel_name=? group by month"
+        cur.execute(query, (hotelname,))
+        data = cur.fetchall()
+
+        # Define a dictionary to map month numbers to names
+        monthMap = {1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'}
+
+        # Populate X and Y lists with data from the database query
+        x = []
+        y = []
+        for row in data:
+            if row[0]:
+                x.append(monthMap[int(row[0])])
+                y.append(row[1])
+
+        # Plot the data on the graph
         self.ax.plot(x, y)
-        self.canvas.draw() # Draws the graph
+        self.canvas.draw()
+
         
 class HelpMenu(QtWidgets.QMainWindow, window6):
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         self.setWindowTitle("Help box")
-        
-        
-        
-        
-        
-
+               
 # RUNNING OF THE PROGRAM
-
 app = QApplication(sys.argv)   # Creates a QApplication which is needed in order to display the QWidgets
 w1 = Login(None)               # Creates an object for Login class
 w2 = SignUp(None)              # Creates an object for SignUp class
@@ -809,4 +786,4 @@ w8 = ParkGrand(None)
 w9 = Canopy(None)
 w10 = ResidentCovent(None)
 w1.show()                     # Uses the library to fetch the .show() function which displays the window
-app.exec_()                    # Executes the program
+app.exec_()                   # Executes the program
